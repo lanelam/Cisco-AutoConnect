@@ -19,9 +19,10 @@ class Outlook():
         login_attempts = 0
         while True:
             try:
-                self.imap = imaplib.IMAP4_SSL(config.imap_server,config.imap_port)
+                self.imap = imaplib.IMAP4_SSL(
+                    config.imap_server, config.imap_port)
                 r, d = self.imap.login(username, password)
-                assert r == 'OK', 'login failed: %s' % str (r)
+                assert r == 'OK', 'login failed: %s' % str(r)
                 print(" > Signed in as %s" % self.username, d)
                 return
             except Exception as err:
@@ -73,14 +74,15 @@ class Outlook():
                 attempts = attempts + 1
                 if attempts < 3:
                     continue
-                raise Exception("Send failed. Check the recipient email address")
+                raise Exception(
+                    "Send failed. Check the recipient email address")
 
     def list(self):
         # self.login()
         return self.imap.list()
 
-    def select(self, str):
-        return self.imap.select(str)
+    def select(self, folder):
+        return self.imap.select(f'"{folder}"')
 
     def inbox(self):
         return self.imap.select("Inbox")
@@ -96,24 +98,27 @@ class Outlook():
         return mydate.strftime("%d-%b-%Y")
 
     def allIdsSince(self, days):
-        r, d = self.imap.search(None, '(SINCE "'+self.since_date(days)+'")', 'ALL')
-        list = d[0].split(' ')
+        r, d = self.imap.search(
+            None, '(SINCE "'+self.since_date(days)+'")', 'ALL')
+        list = d[0].decode("utf-8").split(' ')
         return list
 
     def allIdsToday(self):
         return self.allIdsSince(1)
 
     def readIdsSince(self, days):
-        r, d = self.imap.search(None, '(SINCE "'+self.date_since(days)+'")', 'SEEN')
-        list = d[0].split(' ')
+        r, d = self.imap.search(
+            None, '(SINCE "'+self.date_since(days)+'")', 'SEEN')
+        list = d[0].decode("utf-8").split(' ')
         return list
 
     def readIdsToday(self):
         return self.readIdsSince(1)
 
     def unreadIdsSince(self, days):
-        r, d = self.imap.search(None, '(SINCE "'+self.since_date(days)+'")', 'UNSEEN')
-        list = d[0].split(' ')
+        r, d = self.imap.search(
+            None, '(SINCE "'+self.since_date(days)+'")', 'UNSEEN')
+        list = d[0].decode("utf-8").split(' ')
         return list
 
     def unreadIdsToday(self):
@@ -121,17 +126,17 @@ class Outlook():
 
     def allIds(self):
         r, d = self.imap.search(None, "ALL")
-        list = d[0].split(' ')
+        list = d[0].decode("utf-8").split(' ')
         return list
 
     def readIds(self):
         r, d = self.imap.search(None, "SEEN")
-        list = d[0].split(' ')
+        list = d[0].decode("utf-8").split(' ')
         return list
 
     def unreadIds(self):
         r, d = self.imap.search(None, "UNSEEN")
-        list = d[0].split(' ')
+        list = d[0].decode("utf-8").split(' ')
         return list
 
     def hasUnread(self):
@@ -148,7 +153,7 @@ class Outlook():
 
     def getEmail(self, id):
         r, d = self.imap.fetch(id, "(RFC822)")
-        self.raw_email = d[0][1]
+        self.raw_email = d[0][1].decode("utf-8")
         self.email_message = email.message_from_string(self.raw_email)
         return self.email_message
 
@@ -162,6 +167,14 @@ class Outlook():
         latest_id = list[-1]
         return self.getEmail(latest_id)
 
+    def readMulti(self, k: int = 1):
+        list = self.allIds()
+        latest_ids = list[-k:]
+        Emails = []
+        for latest_id in latest_ids:
+            Emails.append(self.getEmail(latest_id))
+        return Emails
+
     def readToday(self):
         list = self.readIdsToday()
         latest_id = list[-1]
@@ -173,16 +186,17 @@ class Outlook():
         return self.getEmail(latest_id)
 
     def readOnly(self, folder):
-        return self.imap.select(folder, readonly=True)
+
+        return self.imap.select(f'"{folder}"', readonly=True)
 
     def writeEnable(self, folder):
-        return self.imap.select(folder, readonly=False)
+        return self.imap.select(f'"{folder}"', readonly=False)
 
     def rawRead(self):
         list = self.readIds()
         latest_id = list[-1]
         r, d = self.imap.fetch(latest_id, "(RFC822)")
-        self.raw_email = d[0][1]
+        self.raw_email = d[0][1].decode("utf-8")
         return self.raw_email
 
     def mailbody(self):
