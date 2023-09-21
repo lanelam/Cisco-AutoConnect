@@ -3,15 +3,15 @@ import imaplib
 import smtplib
 import datetime
 import email.mime.multipart
-import config
 import base64
 
 
 class Outlook():
     def __init__(self):
-        pass
-        # self.imap = imaplib.IMAP4_SSL('imap-mail.outlook.com')
-        # self.smtp = smtplib.SMTP('smtp-mail.outlook.com')
+        self.imap_server = "imap-mail.outlook.com"
+        self.imap_port = 993
+        self.smtp_server = "smtp-mail.outlook.com"
+        self.smtp_port = 587
 
     def login(self, username, password):
         self.username = username
@@ -20,7 +20,7 @@ class Outlook():
         while True:
             try:
                 self.imap = imaplib.IMAP4_SSL(
-                    config.imap_server, config.imap_port)
+                    self.imap_server, self.imap_port)
                 r, d = self.imap.login(username, password)
                 assert r == 'OK', 'login failed: %s' % str(r)
                 print(" > Signed in as %s" % self.username, d)
@@ -38,10 +38,9 @@ class Outlook():
         msg['from'] = self.username
         msg['subject'] = subject
         msg.add_header('reply-to', self.username)
-        # headers = "\r\n".join(["from: " + "sms@kitaklik.com","subject: " + subject,"to: " + recipient,"mime-version: 1.0","content-type: text/html"])
-        # content = headers + "\r\n\r\n" + message
         try:
-            self.smtp = smtplib.SMTP(config.smtp_server, config.smtp_port)
+            self.smtp = smtplib.SMTP(
+                self.smtp_server, self.smtp_port)
             self.smtp.ehlo()
             self.smtp.starttls()
             self.smtp.login(self.username, self.password)
@@ -62,7 +61,8 @@ class Outlook():
         attempts = 0
         while True:
             try:
-                self.smtp = smtplib.SMTP(config.smtp_server, config.smtp_port)
+                self.smtp = smtplib.SMTP(
+                    self.smtp_server, self.smtp_port)
                 self.smtp.ehlo()
                 self.smtp.starttls()
                 self.smtp.login(self.username, self.password)

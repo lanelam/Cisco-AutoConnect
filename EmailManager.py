@@ -89,8 +89,3 @@ def parseEmail(mail):
 def isNewReceive(requestTime: str, receivedTime: str):
     """ Check timeliness. Basically comparing 'requestTime' and 'receivedTime' by str method. """
     return True if receivedTime >= requestTime else False
-
-
-# em = EmailManager()
-# em("lanelamzc@outlook.com", "Abcde0415.", "HKU 2FA", "hku2fa@hku.hk")
-# TOKEN = em.getToken()
