@@ -1,4 +1,4 @@
-__author__ = 'lane_lam'
+__author__ = 'lanelam'
 
 import outlook
 
@@ -77,7 +77,7 @@ def parseEmail(mail):
     # >> Date: formatted str
     _Date = response["Date"]
     _dt = datetime.strptime(_Date, "%a, %d %b %Y %H:%M:%S %z")
-    _dt += timedelta(seconds=10)   # immitate latency
+    _dt += timedelta(seconds=15)   # simulate a latency
     receivedTime = _dt.strftime("%Y-%m-%d %H:%M:%S")
     # >> Subject: find longest digit from subject
     subject = _Subject.strip()
