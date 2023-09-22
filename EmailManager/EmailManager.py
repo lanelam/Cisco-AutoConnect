@@ -1,6 +1,6 @@
 __author__ = 'lanelam'
 
-import outlook
+import EmailManager.outlook as outlook
 
 import time
 import re
