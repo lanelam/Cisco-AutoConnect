@@ -5,6 +5,8 @@ import win32com.client
 import win32gui
 import win32con
 import time
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
 
 
 class AppHandler_win32:
@@ -16,16 +18,15 @@ class AppHandler_win32:
         self.shell = None
     
     def open_app(self):
-        hwnd = win32gui.FindWindow(None, self.app_name)
-        if hwnd != 0:
-            self.app_hwnd = hwnd
-        else:
-            self.app = Application(backend="win32").start(self.app_path)
-            time.sleep(2)
-            self.app_hwnd = win32gui.FindWindow(None, self.app_name)
+        # Call App
+        self.app = Application(backend="win32").start(self.app_path)
+        time.sleep(2)
+        self.app_hwnd = win32gui.FindWindow(None, self.app_name)
         self.back_to_app(self.app_hwnd)
+        # Call Shell client
         self.shell = win32com.client.Dispatch("WScript.Shell")
         self.shell.AppActivate("Cisco AnyConnect Secure Mobility Client")
+        time.sleep(2)
 
     def back_to_app(self,hwnd):
         win32gui.ShowWindow(hwnd, 8)
@@ -74,8 +75,7 @@ class AppHandler_win32:
             if current_status == status: break
             _retry+=1
             if _retry ==  3:
-                # press "esc"
-                self.shell.SendKeys("{ENTER}")
+                self.shell.SendKeys("{ESC}")
             time.sleep(1)
 
     def click_buttom(self, button_name):
@@ -109,7 +109,36 @@ class AppHandler_win32:
                     win32gui.PostMessage(child_handle, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, 0)
                     win32gui.PostMessage(child_handle, win32con.WM_LBUTTONUP, 0, 0)
                     break
+    
+    def enter_text(self,text,enter_area):
+        if enter_area in ["Username","Password"]:
+            hwnd = self.hwnd_login
+        elif enter_area in ["Token"]:
+            hwnd = self.hwnd_auth
+        self.back_to_app(hwnd)
+        # Get all Edit class
+        edit_hwnd = []
+        controls = get_controls(hwnd)
+        for control in controls:
+            if control["class"]=="Edit":
+                edit_hwnd.append(control["handle"])
+        # Send text to handle
+        if enter_area=="Username" or enter_area == "Token": write_hwnd = edit_hwnd[0]
+        elif enter_area=="Password": write_hwnd = edit_hwnd[1]
+        default_text_length = getEditTextLength(write_hwnd)
+        if default_text_length==0: 
+            send_text(write_hwnd,text)
+            time.sleep(1)
 
+def getEditTextLength(hwnd):
+    # 文本框内容长度
+    length = win32gui.SendMessage(hwnd, win32con.WM_GETTEXTLENGTH)
+    return length
+                
+def send_text(hwnd, text):
+    for char in text:
+        win32gui.SendMessage(hwnd, win32con.WM_CHAR, ord(char), 0)
+    
 def get_controls(hwnd):
     # 获取窗口的子控件句柄
     child_handles = []

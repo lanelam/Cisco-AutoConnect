@@ -2,3 +2,4 @@ email
 imaplib
 smtplib
 pywin32
+pywinauto
