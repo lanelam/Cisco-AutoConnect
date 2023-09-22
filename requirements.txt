@@ -1,5 +1,5 @@
-email
-imaplib
-smtplib
-pywin32
+email==6.0.0a1
+imaplib2
+PyEmail
 pywinauto
+pywin32
