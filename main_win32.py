@@ -1,5 +1,5 @@
-from AppHandler import AppHandler_win32
-from EmailManager import EmailManager
+from AppHandler.AppHandler import AppHandler_win32
+from EmailManager.EmailManager import EmailManager
 
 import time
 import configparser
