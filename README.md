@@ -33,7 +33,7 @@ You can use following code to create and activate a virtual env:
 ```bash
 cd < your project directory >
 python -m venv venv
-env\Scripts\activate
+venv\Scripts\activate
 ```
 
 After activation, download prerequisites:
