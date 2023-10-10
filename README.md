@@ -110,7 +110,7 @@ python -m pip install -r requirements.txt
 ```
 
 ### 2. 配置环境
-打开_config.ini_文件，并填写以下参数：
+打开 _config.ini_ 文件，并填写以下参数：
 
 * __AppDirt__：Cisco Anyconnect UI 目录。
 
